@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"ddos-sample/pkg/scheduler"
+	"ddos-sample/internal/service"
 	"ddos-sample/pkg/shutdown"
 )
 
@@ -18,21 +18,13 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
+
 	wg.Add(1)
-	go ExecuteConn(&wg)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		service.StressWebsite()
+	}(&wg)
 
 	shutdown.GracefulShutdown(cleanup)
 	wg.Wait()
-}
-
-func ExecuteConn(wg *sync.WaitGroup) {
-	defer wg.Done()
-
-	const SECOND_ENV = 5
-	const RATE_LIMIT = 1
-
-	sem := scheduler.NewScheduler(RATE_LIMIT, SECOND_ENV)
-	sem.Run(func(taskID int) {
-		fmt.Println("Veio aqui", taskID)
-	})
 }
