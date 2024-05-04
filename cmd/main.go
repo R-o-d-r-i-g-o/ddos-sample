@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"sync"
-	"time"
 
+	"ddos-sample/pkg/scheduler"
 	"ddos-sample/pkg/shutdown"
 )
 
@@ -19,14 +19,20 @@ func main() {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 10; i++ {
-			fmt.Println("Trabalhando...")
-			time.Sleep(time.Second)
-		}
-	}()
+	go ExecuteConn(&wg)
 
 	shutdown.GracefulShutdown(cleanup)
 	wg.Wait()
+}
+
+func ExecuteConn(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	const SECOND_ENV = 5
+	const RATE_LIMIT = 1
+
+	sem := scheduler.NewScheduler(RATE_LIMIT, SECOND_ENV)
+	sem.Run(func(taskID int) {
+		fmt.Println("Veio aqui", taskID)
+	})
 }
