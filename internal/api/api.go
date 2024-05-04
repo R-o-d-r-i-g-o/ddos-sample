@@ -5,7 +5,21 @@ import (
 	"net/http"
 )
 
-func IsWebsiteStillWorking(url string) bool {
+// Api holds public api methods.
+type Api interface {
+	IsWebsiteStillWorking(url string) bool
+}
+
+// api holds its signature.
+type api struct{}
+
+// NewAPI starts api layer.
+func NewAPI() Api {
+	return &api{}
+}
+
+// IsWebsiteStillWorking checks website positive answer.
+func (api) IsWebsiteStillWorking(url string) bool {
 	res, err := http.Get(url)
 	if err != nil {
 		fmt.Println("fail to get resquest:", err.Error())

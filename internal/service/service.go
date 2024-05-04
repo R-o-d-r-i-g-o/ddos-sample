@@ -3,20 +3,35 @@ package service
 import (
 	"log"
 
+	"ddos-sample/config"
 	"ddos-sample/internal/api"
 	"ddos-sample/pkg/scheduler"
 )
 
-func StressWebsite() {
-	const SECOND_ENV = 10
-	const RATE_LIMIT = 10
-	const URL = "https://webhook.site/d4d54ea1-c0f6-4f53-9233-a9ff81793a73"
+// Service holds public api methods.
+type Service interface {
+	StressWebsite()
+}
 
-	sem := scheduler.NewScheduler(RATE_LIMIT, SECOND_ENV)
-	sem.Run(func(taskID int) {
+// service holds its conn info.
+type service struct {
+	env config.Env
+	api api.Api
+}
+
+// NewService starts service layer.
+func NewService(env config.Env, api api.Api) Service {
+	return &service{env, api}
+}
+
+// StressWebsite call website based on configured info.
+func (s *service) StressWebsite() {
+	scheduler := scheduler.NewScheduler(s.env.ConnPerSecond, s.env.TimeInSeconds)
+
+	scheduler.Run(func(taskID int) {
 		log.Printf("[info] running task %d ...\n", taskID)
 
-		if !api.IsWebsiteStillWorking(URL) {
+		if !s.api.IsWebsiteStillWorking(s.env.ApiURL) {
 			log.Printf("[warn] website is down.")
 		}
 	})
