@@ -2,8 +2,7 @@
 FROM golang:latest AS builder
 WORKDIR /app
 COPY . .
-# RUN go test ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./app
 
 # stage of publishing
 FROM alpine:latest AS publisher
