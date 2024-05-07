@@ -9,4 +9,6 @@ FROM alpine:latest AS publisher
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /app .
+EXPOSE 8080
+
 CMD ["./app"]
