@@ -2,12 +2,11 @@
 FROM golang:latest AS builder
 WORKDIR /app
 COPY . .
-# RUN go test ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+RUN go build -o app ./cmd/
 
 # stage of publishing
 FROM alpine:latest AS publisher
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-COPY --from=builder /app/app .
+COPY --from=builder /app .
 CMD ["./app"]
